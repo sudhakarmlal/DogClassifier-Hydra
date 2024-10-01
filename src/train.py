@@ -1,83 +1,98 @@
-import lightning as L
-import torch
-import torch.nn as nn
-import timm
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+import os
+import rootutils
 
-class TimmClassifier(L.LightningModule):
-    def __init__(
-        self,
-        base_model,
-        num_classes,
-        pretrained=True,
-        learning_rate=1e-3,
-        weight_decay=1e-5,
-        patience=3,
-        factor=0.1,
-        min_lr=1e-6
-    ):
-        super().__init__()
-        self.save_hyperparameters()
-        self.model = timm.create_model(base_model, pretrained=pretrained, num_classes=num_classes)
-        self.criterion = nn.CrossEntropyLoss()
+# Setup root directory
+root = rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-    def forward(self, x):
-        return self.model(x)
+import hydra
+from omegaconf import DictConfig
+from pytorch_lightning import Trainer
+from pytorch_lightning.loggers import Logger
+from pytorch_lightning.callbacks import Callback
 
-    def training_step(self, batch, batch_idx):
-        x, y = batch
-        logits = self(x)
-        loss = self.criterion(logits, y)
-        acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("train/acc", acc, on_step=True, on_epoch=True, prog_bar=True)
-        return loss
+from src.utils import logging_utils
 
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        logits = self(x)
-        loss = self.criterion(logits, y)
-        acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+# Setup Python path
+os.environ["PYTHONPATH"] = str(root)
 
-    def test_step(self, batch, batch_idx):
-        x, y = batch
-        logits = self(x)
-        loss = self.criterion(logits, y)
-        acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log("test/loss", loss, on_step=False, on_epoch=True)
-        self.log("test/acc", acc, on_step=False, on_epoch=True)
+def instantiate_callbacks(callback_cfg: DictConfig) -> list[Callback]:
+    callbacks: list[Callback] = []
+    if callback_cfg:
+        for _, cb_conf in callback_cfg.items():
+            if "_target_" in cb_conf:
+                log.info(f"Instantiating callback <{cb_conf._target_}>")
+                callbacks.append(hydra.utils.instantiate(cb_conf))
+    return callbacks
 
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(
-            self.parameters(),
-            lr=self.hparams.learning_rate,
-            weight_decay=self.hparams.weight_decay
-        )
-        scheduler = ReduceLROnPlateau(
-            optimizer,
-            mode='min',
-            factor=self.hparams.factor,
-            patience=self.hparams.patience,
-            min_lr=self.hparams.min_lr
-        )
-        return {
-            "optimizer": optimizer,
-            "lr_scheduler": scheduler,
-            "monitor": "val/loss"
-        }
-    def main():
-    # ... existing setup code ...
+def instantiate_loggers(logger_cfg: DictConfig) -> list[Logger]:
+    loggers: list[Logger] = []
+    if logger_cfg:
+        for _, lg_conf in logger_cfg.items():
+            if "_target_" in lg_conf:
+                log.info(f"Instantiating logger <{lg_conf._target_}>")
+                loggers.append(hydra.utils.instantiate(lg_conf))
+    return loggers
 
-    # Initialize Model with new parameters
-        model = TimmClassifier(
-            base_model="resnet18",  # Example base model
-            num_classes=2,  # For cat/dog classification
-            pretrained=True,
-            learning_rate=1e-3,
-            weight_decay=1e-5,
-            patience=3,
-            factor=0.1,
-            min_lr=1e-6
-        )
+@hydra.main(version_base=None, config_path="../configs", config_name="train")
+def main(cfg: DictConfig):
+    # Set up logger
+    log = logging_utils.get_logger(__name__)
+
+    # Set seed for reproducibility
+    if cfg.get("seed"):
+        log.info(f"Setting seed: {cfg.seed}")
+        logging_utils.set_seed(cfg.seed)
+
+    # Create datamodule
+    log.info(f"Instantiating datamodule <{cfg.data._target_}>")
+    datamodule = hydra.utils.instantiate(cfg.data)
+
+    # Create model
+    log.info(f"Instantiating model <{cfg.model._target_}>")
+    model = hydra.utils.instantiate(cfg.model)
+
+    # Create callbacks
+    callbacks = instantiate_callbacks(cfg.get("callbacks"))
+
+    # Create loggers
+    loggers = instantiate_loggers(cfg.get("logger"))
+
+    # Create trainer
+    log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
+    trainer: Trainer = hydra.utils.instantiate(
+        cfg.trainer, callbacks=callbacks, logger=loggers, _convert_="partial"
+    )
+
+    # Train the model
+    if cfg.get("train"):
+        log.info("Starting training!")
+        trainer.fit(model=model, datamodule=datamodule, ckpt_path=cfg.get("ckpt_path"))
+        log.info("Training completed!")
+        log.info(f"Train metrics:\n{trainer.callback_metrics}")
+
+    # Evaluate model on test set after training
+    if cfg.get("test"):
+        log.info("Starting testing!")
+        best_model_path = trainer.checkpoint_callback.best_model_path if hasattr(trainer, 'checkpoint_callback') else None
+        if best_model_path and os.path.exists(best_model_path):
+            log.info(f"Loading best model from {best_model_path}")
+            trainer.test(model=model, datamodule=datamodule, ckpt_path=best_model_path)
+        else:
+            log.info("No best model checkpoint found. Using current model weights.")
+            trainer.test(model=model, datamodule=datamodule)
+        log.info("Testing completed!")
+        log.info(f"Test metrics:\n{trainer.callback_metrics}")
+
+    # Make sure everything closed properly
+    log.info("Finalizing!")
+    logging_utils.finish(
+        config=cfg,
+        model=model,
+        datamodule=datamodule,
+        trainer=trainer,
+        callbacks=callbacks,
+        logger=loggers,
+    )
+
+if __name__ == "__main__":
+    main()
