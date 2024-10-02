@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Union, Tuple
 import os
 
-import lightning as L
+import pytorch_lightning as L
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
@@ -11,11 +11,11 @@ from torchvision.datasets.utils import download_and_extract_archive
 class CatDogImageDataModule(L.LightningDataModule):
     def __init__(
         self,
-        data_dir: Union[str, Path] = "data",
-        num_workers: int = 0,
-        batch_size: int = 8,
+        data_dir: str = "${oc.env:PWD}/data",
+        num_workers: int = 2,  # Reduce this value
+        batch_size: int = 64,
         splits: Tuple[float, float, float] = (0.8, 0.1, 0.1),
-        pin_memory: bool = False
+        pin_memory: bool = True
     ):
         super().__init__()
         self._data_dir = Path(data_dir)

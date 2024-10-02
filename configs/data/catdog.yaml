@@ -1,6 +1,6 @@
 _target_: src.datamodules.catdog_datamodule.CatDogImageDataModule
 data_dir: ${oc.env:PWD}/data
-num_workers: 4
+num_workers: 2
 batch_size: 32
 splits: [0.8, 0.1, 0.1]
 pin_memory: true

@@ -21,7 +21,7 @@ data:
   pin_memory: True
 
 model:
-  base_model: "resnet18"
+  model_name: "resnet18"
   num_classes: 2
   lr: 1e-3
 

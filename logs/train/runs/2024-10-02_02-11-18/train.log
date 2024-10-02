@@ -1,0 +1,9 @@
+2024-10-02 02:11:18.547 | INFO     | __main__:main:49 - Setting seed: 42
+2024-10-02 02:11:18.547 | INFO     | __main__:main:53 - Instantiating datamodule <src.datamodules.catdog_datamodule.CatDogImageDataModule>
+2024-10-02 02:11:18.551 | INFO     | __main__:main:58 - Instantiating model <src.models.timm_classifier.TimmClassifier>
+[2024-10-02 02:11:19,065][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/resnet18.a1_in1k)
+[2024-10-02 02:11:19,246][timm.models._hub][INFO] - [timm/resnet18.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+[2024-10-02 02:11:19,257][timm.models._builder][INFO] - Missing keys (fc.weight, fc.bias) discovered while loading pretrained weights. This is expected if model is being adapted.
+2024-10-02 02:11:19.260 | INFO     | __main__:instantiate_callbacks:28 - Instantiating callback <pytorch_lightning.callbacks.ModelCheckpoint>
+2024-10-02 02:11:19.264 | INFO     | __main__:instantiate_callbacks:28 - Instantiating callback <pytorch_lightning.callbacks.EarlyStopping>
+2024-10-02 02:11:19.265 | INFO     | __main__:instantiate_callbacks:28 - Instantiating callback <pytorch_lightning.callbacks.ModelSummary>

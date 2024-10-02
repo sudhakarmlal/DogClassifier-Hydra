@@ -23,6 +23,20 @@ def task_wrapper(func):
             logger.exception(f"Error in {func_name}: {str(e)}")
             raise
     return wrapper
+def log_metrics_table(metrics: dict, title: str):
+    table = Table(title=title)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", style="magenta")
+
+    for key, value in metrics.items():
+        if isinstance(value, (int, float)):
+            table.add_row(key, f"{value:.4f}")
+        else:
+            table.add_row(key, str(value))
+
+    rich_print(table)
+
+ 
 
 def get_rich_progress():
     return Progress(

@@ -1,5 +1,5 @@
 model_checkpoint:
-   _target_: lightning.pytorch.callbacks.ModelCheckpoint
+   _target_: pytorch_lightning.callbacks.ModelCheckpoint
    dirpath: null # directory to save the model file
    filename: null # checkpoint filename
    monitor: null # name of the logged metric which determines when model is improving

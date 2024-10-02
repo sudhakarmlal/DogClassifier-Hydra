@@ -1,0 +1,8 @@
+model_name: resnet18
+num_classes: 2
+pretrained: true
+lr: 0.001
+weight_decay: 1.0e-05
+scheduler_patience: 10
+scheduler_factor: 0.1
+min_lr: 1.0e-06

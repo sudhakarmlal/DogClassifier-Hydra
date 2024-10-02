@@ -1,0 +1,3 @@
+2024-10-02 00:21:21.340 | INFO     | __main__:main:49 - Setting seed: 42
+2024-10-02 00:21:21.341 | INFO     | __main__:main:53 - Instantiating datamodule <src.datamodules.catdog_datamodule.CatDogImageDataModule>
+2024-10-02 00:21:21.474 | INFO     | __main__:main:58 - Instantiating model <src.model.timm_classifier.TimmClassifier>

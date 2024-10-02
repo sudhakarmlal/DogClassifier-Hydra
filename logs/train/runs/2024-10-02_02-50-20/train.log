@@ -1,0 +1,18 @@
+2024-10-02 02:50:20.584 | INFO     | __main__:main:49 - Setting seed: 42
+2024-10-02 02:50:20.584 | INFO     | __main__:main:53 - Instantiating datamodule <src.datamodules.catdog_datamodule.CatDogImageDataModule>
+2024-10-02 02:50:20.587 | INFO     | __main__:main:58 - Instantiating model <src.models.timm_classifier.TimmClassifier>
+[2024-10-02 02:50:21,211][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/resnet18.a1_in1k)
+[2024-10-02 02:50:21,394][timm.models._hub][INFO] - [timm/resnet18.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+[2024-10-02 02:50:21,407][timm.models._builder][INFO] - Missing keys (fc.weight, fc.bias) discovered while loading pretrained weights. This is expected if model is being adapted.
+2024-10-02 02:50:21.411 | INFO     | __main__:instantiate_callbacks:28 - Instantiating callback <pytorch_lightning.callbacks.ModelCheckpoint>
+2024-10-02 02:50:21.414 | INFO     | __main__:instantiate_callbacks:28 - Instantiating callback <pytorch_lightning.callbacks.EarlyStopping>
+2024-10-02 02:50:21.416 | INFO     | __main__:instantiate_callbacks:28 - Instantiating callback <pytorch_lightning.callbacks.ModelSummary>
+2024-10-02 02:50:21.416 | INFO     | __main__:instantiate_loggers:37 - Instantiating logger <lightning.pytorch.loggers.csv_logs.CSVLogger>
+2024-10-02 02:50:21.539 | INFO     | __main__:instantiate_loggers:37 - Instantiating logger <lightning.pytorch.loggers.tensorboard.TensorBoardLogger>
+2024-10-02 02:50:21.543 | INFO     | __main__:main:69 - Instantiating trainer <pytorch_lightning.Trainer>
+[2024-10-02 02:50:21,549][lightning.pytorch.utilities.rank_zero][INFO] - Using bfloat16 Automatic Mixed Precision (AMP)
+[2024-10-02 02:50:21,550][lightning.pytorch.utilities.rank_zero][INFO] - Trainer already configured with model summary callbacks: [<class 'pytorch_lightning.callbacks.model_summary.ModelSummary'>]. Skipping setting a default `ModelSummary` callback.
+[2024-10-02 02:50:21,557][lightning.pytorch.utilities.rank_zero][INFO] - GPU available: False, used: False
+[2024-10-02 02:50:21,557][lightning.pytorch.utilities.rank_zero][INFO] - TPU available: False, using: 0 TPU cores
+[2024-10-02 02:50:21,557][lightning.pytorch.utilities.rank_zero][INFO] - HPU available: False, using: 0 HPUs
+2024-10-02 02:50:21.557 | INFO     | __main__:main:76 - Starting training!

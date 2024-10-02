@@ -1,0 +1,2 @@
+2024-10-01 23:50:56.381 | INFO     | __main__:main:53 - Instantiating datamodule <src.datamodules.catdog_datamodule.CatDogImageDataModule>
+2024-10-01 23:50:56.518 | INFO     | __main__:main:58 - Instantiating model <src.models.timm_classifier.TimmClassifier>

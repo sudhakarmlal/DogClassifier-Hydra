@@ -1,0 +1,10 @@
+_target_: src.models.timm_classifier.TimmClassifier
+
+model_name: "resnet18"
+num_classes: 2
+pretrained: true
+lr: 1e-3
+weight_decay: 1e-5
+scheduler_factor: 0.1
+scheduler_patience: 10
+min_lr: 1e-6

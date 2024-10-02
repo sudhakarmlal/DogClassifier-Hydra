@@ -1,0 +1,3 @@
+- experiment=catdog_ex
+- model=timm_classify
+- +trainer.num_workers=8
